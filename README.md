@@ -6,11 +6,14 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-Zhiwei turns agents into a team — inside the chat interface you already know. Create a dedicated group chat for each project, and build a team of agents customized to it.
+Zhiwei is an office agent, not a chat agent. Drop your material in, say one sentence, and what comes
+back is a real `.pptx` / `.docx` / `.xlsx` — Chinese text you can select and re-typeset in Office, not
+a picture of a slide. And it does not hand you the first draft it made: a QA member checks the file
+against a written spec and can reject it, so the team reworks its own output instead of you hunting
+for problems.
 
-> Screenshots and demo clips are being re-recorded against this build, so this page has none yet.
-> The upstream skeleton's recordings show *its* interface, not what Zhiwei looks like now, and were
-> removed rather than left misleading.
+The team itself lives in the chat interface you already know — one dedicated group chat per project,
+every agent a member with its own identity, memory, and model.
 
 ---
 
