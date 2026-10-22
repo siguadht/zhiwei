@@ -1,0 +1,166 @@
+# knowe v0.6 — Harness 核心引擎
+"""
+Knowe Agent Core — typed exceptions.
+
+All Knowe-specific exceptions inherit from KnoweError.  Provider exceptions also carry
+small, non-secret retry diagnostics so the Worker can surface a useful terminal message
+instead of an empty ``Exception.__str__`` value.
+"""
+
+from __future__ import annotations
+
+
+class KnoweError(Exception):
+    """Base exception for Knowe Agent Core."""
+
+
+# ── Provider errors ──
+
+class ProviderError(KnoweError):
+    """Provider-level error (network, auth, rate limit, or malformed response)."""
+
+    default_retryable = False
+
+    def __init__(
+        self,
+        message: str,
+        status_code: int | None = None,
+        response_body: str | None = None,
+        *,
+        retryable: bool | None = None,
+        attempts: int = 0,
+        max_attempts: int = 0,
+        cause_type: str = "",
+        format_rejected: str | None = None,
+    ) -> None:
+        # Some httpx/httpcore exceptions intentionally have an empty ``str(exc)``.  Never
+        # let that erase the only diagnostic that reaches a non-technical user.
+        normalized = str(message or "").strip() or self.__class__.__name__
+        super().__init__(normalized)
+        self.message = normalized
+        self.status_code = status_code
+        self.response_body = response_body
+        self.retryable = (
+            bool(self.default_retryable) if retryable is None else bool(retryable)
+        )
+        self.attempts = max(0, int(attempts or 0))
+        self.max_attempts = max(0, int(max_attempts or 0))
+        self.cause_type = str(cause_type or "")
+        # [v1.0.39.2] 网关明确拒绝的**内容块格式**（如 file 块不被支持）。
+        #   None = 普通错误；"file" = 本次请求含 file 块且网关点名拒绝。
+        #   上层据此做单次格式降级重发（换 text 块），不改变 retryable 语义。
+        self.format_rejected = str(format_rejected) if format_rejected else None
+
+    def with_retry_context(
+        self,
+        *,
+        attempts: int,
+        max_attempts: int,
+        exhausted: bool = False,
+    ) -> "ProviderError":
+        """Attach retry diagnostics in place while preserving the concrete exception type."""
+
+        self.attempts = max(0, int(attempts or 0))
+        self.max_attempts = max(0, int(max_attempts or 0))
+        if (
+            exhausted
+            and self.retryable
+            and self.max_attempts > 1
+            and self.attempts >= self.max_attempts
+            and "已尝试" not in self.message
+        ):
+            self.message = (
+                f"{self.message}（已尝试 {self.attempts}/{self.max_attempts} 次，仍未恢复）"
+            )
+            self.args = (self.message,)
+        return self
+
+
+class ProviderAuthError(ProviderError):
+    """Authentication failed (401)."""
+
+
+class ProviderQuotaError(ProviderError):
+    """Quota/balance exhausted (402). Retryable=False: no point retrying a dead account.
+
+    [v1.0.39.3] 主/辅路由池捕获此错误 → 切换下一个候选绑定（on_quota_exhausted 回调）。
+    """
+
+
+class ProviderRateLimitError(ProviderError):
+    """Rate limited (429). Retry with backoff."""
+
+    default_retryable = True
+
+
+class ProviderTimeoutError(ProviderError):
+    """Request timed out."""
+
+    default_retryable = True
+
+
+class ProviderConnectionError(ProviderError):
+    """Network connection failed or a retryable provider gateway failed."""
+
+    default_retryable = True
+
+
+class ProviderBadResponseError(ProviderError):
+    """Unparseable response from provider."""
+
+
+# ── Stream errors ──
+
+class StreamError(KnoweError):
+    """Error during SSE stream processing."""
+
+
+class StreamParseError(StreamError):
+    """Unparseable SSE line or JSON."""
+
+
+# ── Agent loop errors ──
+
+class AgentError(KnoweError):
+    """Agent-level error."""
+
+
+class ToolNotFoundError(AgentError):
+    """Agent tried to call a tool not in the registry."""
+
+    def __init__(self, tool_name: str):
+        super().__init__(f"Tool not found: {tool_name}")
+        self.tool_name = tool_name
+
+
+class MaxIterationsExceeded(AgentError):
+    """Legacy AgentLoop hit max_iterations without completing.
+
+    WorkerRuntime does not use this legacy loop or this hard cap.
+    """
+
+    def __init__(self, iterations: int):
+        super().__init__(f"Max iterations ({iterations}) exceeded")
+        self.iterations = iterations
+
+
+class AgentInterrupted(AgentError):
+    """Agent was interrupted via interrupt()."""
+
+
+# ── Tool execution errors ──
+
+class ToolExecutionError(KnoweError):
+    """Tool handler raised an exception."""
+
+    def __init__(self, tool_name: str, original_error: Exception):
+        detail = str(original_error or "").strip() or type(original_error).__name__
+        super().__init__(f"Tool '{tool_name}' failed: {detail}")
+        self.tool_name = tool_name
+        self.original_error = original_error
+
+
+# ── Messages / context errors ──
+
+class MessageError(KnoweError):
+    """Error during message assembly or sanitization."""

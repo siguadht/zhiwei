@@ -1,0 +1,222 @@
+/* 知知 Zinnia · 设计令牌 + 全局重置 + 字号刻度 + 滚动?+ 动画
+   —?唯一真源。组件不得写死色值，一律取 var() 令牌?*/
+
+/* ── 令牌 / 重置 / 排版 / 滚动?── */
+/* [v1.0.42 黑白定版] 全站零彩度：任何令牌都不得出现 r/g/b 极差 >10 的值。
+   黑只许出现在四处——主按钮、新建/提交、选中态、等你决定那张卡的 2px 线。
+   语义状态去红绿：通过=黑加粗、打回=黑下划线、未质检=浅灰。 */
+:root {--canvas:#FFFFFF;
+  --surface:#FFFFFF;
+  --surface-2:#F7F7F6;
+  --surface-raise:#FAFAF9; /* [v1.0.23.8] 比 surface-2 亮一点点（推理框底） */
+  --surface-sunken:#F1F1EF;
+  
+  --ink:#111110;
+  --ink-2:#6A6A66;
+  --ink-3:#9B9B95;
+  
+  --accent:#111110;
+  --accent-hover:#2C2C29;
+  --accent-press:#000000;
+  --accent-tint:#F1F1EF;
+  --accent-ring:rgba(17,17,16,0.22);
+  
+  --bubble-me:#111110;
+  --bubble-me-ink:#FFFFFF;
+  
+  --fill:#111110; --fill-ink:#FFFFFF;
+  --fill-hover:#2C2C29; --fill-press:#000000;
+  
+  --success:#111110; --success-bg:#FFFFFF;
+  --warning:#6A6A66; --warning-bg:#F7F7F6;
+  --danger:#111110;  --danger-bg:#F1F1EF;
+  --info:#6A6A66;    --info-bg:#F7F7F6;
+  
+  --hairline:#E6E6E3;
+  --placeholder:#F0F0ED;
+  
+  /* 静态面一律无阴影；阴影只留给真正浮在内容之上的层（弹层/菜单/模态）。 */
+  --shadow-1:none;
+  --shadow-2:none;
+  --shadow-3:0 10px 30px -8px rgba(17,17,16,0.18),0 2px 6px rgba(17,17,16,0.07);
+  --shadow-panel:0 18px 44px -14px rgba(17,17,16,0.30);
+  
+  --font-sans:"SF Pro Text","SF Pro Display","Inter","PingFang SC","Noto Sans SC",system-ui,-apple-system,sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","SFMono-Regular",ui-monospace,monospace;
+  
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+  --space-5:20px; --space-6:24px; --space-8:32px; --space-10:40px;
+  --space-12:48px; --space-16:64px;
+  
+  --r-xs:8px; --r-sm:10px; --r-md:14px; --r-lg:18px; --r-xl:24px;
+  
+  --ease-out:cubic-bezier(0.32,0.72,0,1);
+  --ease-inout:cubic-bezier(0.65,0,0.35,1);
+  --dur-micro:120ms; --dur-base:200ms; --dur-enter:320ms; --dur-soft:420ms;
+  
+  --av-a-bg:#F1F1EF; --av-a-fg:#111110;   
+  --av-b-bg:#F1F1EF; --av-b-fg:#6A6A66;   
+  --av-c-bg:#F1F1EF; --av-c-fg:#111110;   
+  --av-d-bg:#F7F7F6; --av-d-fg:#6A6A66;   
+  --av-n-bg:#F1F1EF; --av-n-fg:#6A6A66;   
+  --code-bg:#2B2B30; --code-ink:#E7E7EB; --code-line:rgba(231,231,235,.40);
+  color-scheme:light;}
+*,*::before,*::after {box-sizing:border-box;margin:0;padding:0}
+html,body {height:100%}
+body {font-family:var(--font-sans);
+  background:var(--canvas);
+  color:var(--ink);
+  font-size:15px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow:hidden;}
+button {font-family:inherit;border:none;background:none;cursor:pointer;color:inherit}
+input,textarea {font-family:inherit;border:none;outline:none;background:none;color:var(--ink)}
+::placeholder {color:var(--ink-3)}
+svg {display:block}
+.t-display {font-size:28px;line-height:34px;font-weight:600;letter-spacing:-0.02em}
+.t-title {font-size:17px;line-height:24px;font-weight:600;letter-spacing:-0.01em}
+.t-body {font-size:15px;line-height:24px;font-weight:400}
+.t-secondary {font-size:13px;line-height:20px;font-weight:400}
+.t-caption {font-size:12px;line-height:16px;font-weight:500}
+.t-micro {font-size:11px;line-height:14px;font-weight:500;letter-spacing:0.01em}
+.tnum {font-variant-numeric:tabular-nums}
+::-webkit-scrollbar {width:10px;height:10px}
+::-webkit-scrollbar-track {background:transparent}
+::-webkit-scrollbar-thumb {background:rgba(17,17,16,0.10);border-radius:5px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover {background:rgba(17,17,16,0.18);border:3px solid transparent;background-clip:content-box}
+#menuLayer,#hoverLayer {position:fixed;inset:0;z-index:200;pointer-events:none}
+#toastLayer {position:fixed;right:var(--space-6);bottom:var(--space-6);z-index:300;display:flex;flex-direction:column;gap:var(--space-2);align-items:flex-end;pointer-events:none}
+
+/* ── 布局骨架 ── */
+.main {flex:1;min-width:0;
+  display:flex;gap:14px;
+  padding:1px 14px 14px 4px;}
+
+/* ── 入场 / 状态动画（工具类，跨组件复用）── */
+html.dark {--canvas:#232322;
+  --surface:#292928;
+  --surface-2:#1E1E1D;
+  --surface-raise:#302F2E; /* [v1.0.23.8] 深色同理：比 surface-2 亮一点点 */
+  --surface-sunken:#1A1A19;
+  --ink:#F2F2F0;
+  --ink-2:#B8B8B3;
+  --ink-3:#86867F;
+  --accent:#F2F2F0;
+  --accent-hover:#FFFFFF;
+  --accent-press:#E4E4E1;
+  --accent-tint:#333331;
+  --accent-ring:rgba(242,242,240,0.26);
+  --bubble-me:#F2F2F0;
+  --bubble-me-ink:#1A1A19;
+  --fill:#F2F2F0; --fill-ink:#1A1A19;
+  --fill-hover:#FFFFFF; --fill-press:#E4E4E1;
+  --success:#F2F2F0; --success-bg:#1A1A19;
+  --warning:#B8B8B3; --warning-bg:#1E1E1D;
+  --danger:#F2F2F0;  --danger-bg:#333331;
+  --info:#B8B8B3;    --info-bg:#1E1E1D;
+  --hairline:#333331;
+  --placeholder:#333331;
+  --shadow-1:none;
+  --shadow-2:none;
+  --shadow-3:0 10px 30px -8px rgba(0,0,0,0.45),0 2px 6px rgba(0,0,0,0.30);
+  --shadow-panel:0 18px 44px -14px rgba(0,0,0,0.62);
+  --av-a-bg:#333331; --av-a-fg:#F2F2F0;
+  --av-b-bg:#333331; --av-b-fg:#B8B8B3;
+  --av-c-bg:#2E2E2C; --av-c-fg:#F2F2F0;
+  --av-d-bg:#2E2E2C; --av-d-fg:#B8B8B3;
+  --av-n-bg:#333331; --av-n-fg:#B8B8B3;
+  --code-bg:#F1F1EF; --code-ink:#1A1A19; --code-line:rgba(26,26,25,.45);
+  color-scheme:dark;}
+html.dark ::-webkit-scrollbar-thumb {background:rgba(242,242,240,0.12);border:3px solid transparent;background-clip:content-box}
+@keyframes pulseDot {
+0%,100%{opacity:1}50%{opacity:0.35}
+}
+.enter {animation:msgIn var(--dur-enter) var(--ease-out) both}
+.enter-soft {animation:msgIn var(--dur-soft) var(--ease-out) both}
+@keyframes msgIn {
+from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}
+}
+@keyframes breatheCursor {
+0%,100%{opacity:1}50%{opacity:0.4}
+}
+@keyframes softWave {
+0%,60%,100%{transform:translateY(0);opacity:0.45}30%{transform:translateY(-3px);opacity:1}
+}
+@keyframes breatheRing {
+0%,100%{opacity:0.55;transform:scale(1)}50%{opacity:0.15;transform:scale(1.06)}
+}
+@media (max-width:1280px) {
+
+  .clist{width:300px}
+
+}
+@media (min-width:1120px) {
+
+  .desk{padding:22px;background:var(--canvas);}
+
+}
+@media (min-width:1120px) {
+
+  .win{box-shadow:var(--shadow-3), 0 0 0 1px rgba(17,17,16,0.05);}
+  html.dark .win{box-shadow:var(--shadow-3), 0 0 0 1px rgba(255,255,255,0.04);}
+
+}
+@keyframes menuIn {
+from{opacity:0;transform:scale(0.98) translateY(-2px)}to{opacity:1;transform:scale(1) translateY(0)}
+}
+@keyframes menuOut {
+to{opacity:0;transform:scale(0.99)}
+}
+@keyframes toastIn {
+from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}
+}
+@keyframes toastOut {
+to{opacity:0;transform:translateY(4px)}
+}
+@keyframes fadeIn {
+from{opacity:0}to{opacity:1}
+}
+@keyframes fadeOut {
+to{opacity:0}
+}
+@keyframes modalIn {
+from{opacity:0;transform:translateY(8px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes cmdkIn {
+from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}
+}
+@keyframes flash {
+0%{background:var(--accent-tint)}100%{background:transparent}
+}
+/* [v1.0.24.6-P3] flash 高亮层淡出（合成器动画）：配合 .mgroup.flash .bubble::before */
+@keyframes flashFade {
+0%{opacity:1}100%{opacity:0}
+}
+@keyframes spin {
+to{transform:rotate(360deg)}
+}
+@keyframes skb {
+0%,100%{opacity:0.55}50%{opacity:1}
+}
+@media (max-width:1200px) {
+
+  .roster-wrap.open{width:0;opacity:0}
+
+}
+@media (max-width:900px) {
+
+  .clist,.side{width:76px}
+  .clist .cbody,.clist .cmeta,.clist .grp-label,.clist .search-wrap,
+  .clist .clist-head .wordmark,.fold-entry .lbl,.fold-entry .n,
+  .side .side-head .side-title,.side .search-wrap{display:none}
+  .clist .clist-head{justify-content:center;padding-right:0}
+  .clist .citem{justify-content:center;padding:10px 0;margin:2px 8px}
+  .fold-entry{justify-content:center}
+  .side-title{font-size:0}
+
+}
+
+
+/* R3-1: image avatars */
+.avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }

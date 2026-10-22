@@ -1,0 +1,185 @@
+/* LoginView · 居中窄表单（宽度对齐 Notion 实测的 360px），全部取设计令牌，不写死色值。 */
+
+.lg-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+  display: grid;
+  place-items: center;
+  background: var(--canvas);
+}
+
+.lg-card {
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 8px 0 0;
+}
+
+/* 品牌位：图标 + 文字锁标。图标来自 public/brand/app-icon.png（他的形象，墨底）。 */
+.lg-word {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 18px;
+}
+.lg-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 22%;
+  display: block;
+  flex: 0 0 46px;
+}
+.lg-word .wm-zh { font-size: 21px; line-height: 28px; }
+.lg-word .wm-en { font-size: 10px; }
+.lg-word .wm-bar { height: 16px; }
+
+.lg-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--ink);
+}
+
+.lg-sub {
+  margin: 6px 0 26px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.lg-field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.lg-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.lg-field input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  /* [v1.0.43 布局A] 与主区输入框同一套直角 */
+  border-radius: 0;
+  outline: none;
+}
+
+.lg-field input::placeholder {
+  color: var(--ink-3);
+}
+
+.lg-field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.lg-err {
+  margin: 2px 0 12px;
+  font-size: 12.5px;
+  color: var(--danger);
+}
+
+.lg-submit {
+  width: 100%;
+  height: 42px;
+  margin-top: 6px;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--fill-ink);
+  background: var(--fill);
+  border: none;
+  /* [v1.0.43 布局A] 整页只剩这一处强调，直角跟主区一致 */
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.lg-submit:hover:not(:disabled) { background: var(--fill-hover); }
+.lg-submit:active:not(:disabled) { background: var(--fill-press); }
+
+.lg-submit:disabled {
+  color: var(--ink-3);
+  background: var(--surface-sunken);
+  cursor: not-allowed;
+}
+
+.lg-switch {
+  margin-top: 16px;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.lg-switch:hover { color: var(--accent); }
+
+.lg-foot {
+  margin-top: 34px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline);
+}
+
+/* 模型未就绪横幅：登录后顶部一条，可关，不糊屏。 */
+.mrb {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3800;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 720px;
+  padding: 10px 14px 10px 16px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--info-bg);
+  border: 1px solid var(--accent-tint);
+  /* [v1.0.43 布局A] 登录这一屏统一直角 */
+  border-radius: 0;
+}
+
+.mrb b { font-weight: 600; }
+
+.mrb-cta {
+  padding: 5px 12px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fill-ink);
+  background: var(--fill);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mrb-cta:hover { background: var(--fill-hover); }
+
+.mrb-x {
+  padding: 2px 6px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--ink-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mrb-x:hover { color: var(--ink-2); }
