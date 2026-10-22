@@ -25,7 +25,7 @@
 
 | Term | One-line definition | See also |
 |:--|:--|:--|
-| **Zhiwei** | The platform-level AI host with a fixed DM window: helps you talk through "what you want to do", proposes opening projects, answers everyday questions — and doesn't enter the project once it's built | [Zhiwei: the platform-level host](10-02-Zhiwei-Coordinator-and-Workers.md#zinnia-the-platform-level-host) |
+| **Zhiwei** | The platform-level AI host with a fixed DM window: helps you talk through "what you want to do", proposes opening projects, answers everyday questions — and doesn't enter the project once it's built | [Zhiwei: the platform-level host](10-02-Zhiwei-Coordinator-and-Workers.md#zhiwei-the-platform-level-host) |
 | **Coordinator** | The one general manager per project: reads the project, breaks down tasks, proposes adding members / assigning work / removing members, verifies deliverables; **can only propose, you decide** | [Coordinator: one general manager per project](10-02-Zhiwei-Coordinator-and-Workers.md#coordinator-one-general-manager-per-project) |
 | **Worker** | One of the 24 roles; pulled into a project to execute concrete tasks and submit reports; each has a "Good at" and a "Not suitable for" boundary | [Workers: 24 roles, addable and removable](10-02-Zhiwei-Coordinator-and-Workers.md#workers-24-roles-addable-and-removable) |
 | **Roles Catalog** | The quick-reference table of the 24 worker roles (Good at / Not suitable for), matching the in-product Roles Catalog | [50 Reference · Roles Catalog](50-01-Roles-Catalog.md) |

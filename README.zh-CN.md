@@ -8,31 +8,22 @@
 
 知微用你最熟悉的聊天软件界面，把 Agent 变成一支团队。你可以给每个项目建立自己的专属群聊、定制专属 Agent 团队。
 
+> 界面截图与演示动图正在按本版界面重录，本页暂时不放。上游骨架的录屏展示的是它自己的界面，
+> 不代表知微现在的样子，所以直接去掉了。
+
 ---
 
 ## 组建你的 Agent 团队
 
 把不同的 Agent 拉进同一个群聊，共同为一个项目服务。团队按项目组织，每个项目都有自己的专属群。
 
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/4c223c55-42f4-4c47-9c36-c14676afff50" width="80%" controls autoplay loop muted playsinline></video>
-</p>
-
 ## 定制你的团队成员
 
 每个 Agent 都是独立的实例——身份与记忆独立，可根据需求自由选配大模型服务。给不同的成员换上不同的「大脑」，让擅长的事交给擅长的成员。
 
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/994cc11b-793e-4ae8-ae65-4850bf257143" width="80%" controls autoplay loop muted playsinline></video>
-</p>
-
 ## 一句话派活，团队自动干活
 
 你不需要学习怎么写提示词、怎么拆任务。项目经理（Coordinator）会自动把任务拆成小任务，分派给合适的员工（Worker）执行，并把结果汇总给你。需要你决定的事，会弹卡问你，你点一下就行。
-
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/e73a3a42-1089-47bc-a584-92939b9b1dee" width="80%" controls autoplay loop muted playsinline></video>
-</p>
 
 ## 还有这些
 
@@ -59,7 +50,8 @@
    全程没改状态机。
 4. **审批卡不再背刺。** 原来 5 分钟静默过期，现在会等你。
 5. **本地账户与密钥收口。** 真登录页（PBKDF2，只存哈希），并堵掉一处 `GET /settings` 把 API Key
-   明文吐给渲染进程的泄露。
+   明文吐给渲染进程的泄露。密钥本体现在只从 `.env` 进来：内存里用，`settings.json` 落的是空串，
+   对外接口只报 `has_api_key`。
 6. **台账 / 版本 / 看板，数字全是真的。** 也明确没有：不接支付、不做服务端账号、不造字段
    （台账里没有"客户签收"这一列，因为那条路径没有实现）。
 7. **整套前端重做**：白 + 黑、零渐变零阴影、一屏一处强调、尺寸按真实产品量；外加成员自主命名的三档规则。
@@ -70,9 +62,31 @@
 
 ## 快速上手
 
-1. 本地构建安装包（`npm run dist:win` / `npm run dist:mac`）
-2. 安装并打开知微，配置你的模型服务（API Key）
-3. 创建项目群聊，开始组建你的 Agent 团队
+**装安装包**
+
+```bash
+npm install
+npm run dist:win        # 或 dist:mac，产物在 release/
+```
+
+安装并打开知微，配好模型服务，然后建项目群、组建你的 Agent 团队。
+
+**从源码跑**
+
+```bash
+npm install
+cp .env.example .env                       # 密钥填进 KNOWE_MODEL_API_KEY
+python3.11 -m venv .venv                   # 3.11 及以上都行，本分支实测用的是 3.12
+.venv/bin/pip install -r backend/requirements.txt
+KNOWE_DEV_PYTHON="$PWD/.venv/bin/python" npm run electron:dev
+```
+
+**关于 API Key。** 设了 `KNOWE_MODEL_API_KEY` 之后，密钥只从 `.env` 进来：后端启动时把它注入模型绑定，
+`settings.json` 里存的是空串而不是密钥本身，设置接口也只回一个 `has_api_key`。这时在界面里粘的 key
+照样能用，但不会写进磁盘——重启后就没了。没有 `.env` 就保持原来的行为，界面里填什么存什么。
+`.env` 已被 gitignore，仓库里只提交 `.env.example`。
+
+贡献与开发环境细节：[CONTRIBUTING.zh-CN.md](./CONTRIBUTING.zh-CN.md)
 
 ## 了解更多
 

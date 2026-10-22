@@ -74,7 +74,19 @@ Configuration is read from environment variables (see `backend/config.py`). Key 
 > are the runtime protocol between frontend and backend and the keys of data already on disk — renaming
 > them breaks the app, not just the cosmetics. The product name lives in the UI and the installer only.
 
-A `.env` file is supported (via python-dotenv) — never commit it.
+### Model key and `.env`
+
+`KNOWE_MODEL_API_KEY` (legacy `DEEPSEEK_API_KEY` also works) is read at backend startup and injected
+into every matching model binding. `.env` is looked for in this order — never via the current working
+directory, because the interpreter Electron spawns has an unpredictable `cwd`:
+`KNOWE_ENV_FILE` → `<KNOWE_INSTALL_ROOT>/.env` → `<KNOWE_DATA_DIR>/.env` → repo root `.env` → dotenv's
+own search. Variables already present in the process environment win; `.env` only fills gaps.
+
+When an env key is injected the module is *sealed*: `settings.json` is rewritten with empty `api_key`
+fields, `_persist()` strips secrets on every later save, and `api_snapshot()` / `public_binding()`
+expose only `has_api_key`. If no binding matches the declared scope (`KNOWE_MODEL_PROVIDER` /
+`KNOWE_MODEL_BASE_URL`), nothing is sealed and the key you saved in Settings stays on disk — a stray
+env variable must never silently wipe a user's keys. Never commit `.env`; only `.env.example` is tracked.
 
 ## Building the Windows installer
 

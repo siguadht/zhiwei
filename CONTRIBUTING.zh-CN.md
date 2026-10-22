@@ -2,7 +2,7 @@
 
 **English version: [CONTRIBUTING.md](./CONTRIBUTING.md)**
 
-感谢您对 Knowe 感兴趣！这是一个小项目。
+感谢您对知微感兴趣！这是一个小项目。
 
 ## 参与方式
 
@@ -16,9 +16,14 @@
 
 ```bash
 npm install
-pip install -r backend/requirements.txt
-npm run electron:dev
+cp .env.example .env                       # 密钥填进 KNOWE_MODEL_API_KEY
+python3.11 -m venv .venv                   # 3.11 及以上都行，本分支实测用的是 3.12
+.venv/bin/pip install -r backend/requirements.txt
+KNOWE_DEV_PYTHON="$PWD/.venv/bin/python" npm run electron:dev
 ```
+
+开发态由 Electron 主进程用 `python -m backend` 拉起后端，解释器只认 `KNOWE_DEV_PYTHON`——不设的话它
+去找随包的 `runtime/`，而刚 clone 下来的仓库里没有这个目录。打包版直接跑 PyInstaller 产物，不需要本机 Python。
 
 ## 提交 PR 之前
 

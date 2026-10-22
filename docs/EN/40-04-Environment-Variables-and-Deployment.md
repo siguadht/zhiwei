@@ -67,6 +67,24 @@ Key points:
 
 > **Important**: the table above lists **categories and uses**, not exact variable names. Exact variable names, values, and defaults ship with each version and follow the product; this page doesn't invent names. If you need them, follow the in-app instructions or the reference content shipped with the version.
 
+### Concrete variables shipped since v1.0.43
+
+These are live today, not planned. The full annotated list is `.env.example` in the repository root.
+
+| Variable | What it does | Required |
+|:--|:--|:--|
+| `KNOWE_MODEL_API_KEY` | The model key. When set, the key comes only from the environment, and the `api_key` fields in `data/backend/settings.json` are written as empty strings | Required for real model calls |
+| `KNOWE_MODEL_PROVIDER` | Narrows injection to bindings of this provider (e.g. `deepseek`); unset means every binding | Optional |
+| `KNOWE_MODEL_BASE_URL` | Same idea, narrowed by endpoint (trailing `/` is ignored when comparing) | Optional |
+| `KNOWE_ENV_FILE` | Points at the `.env` to load; highest priority | Optional |
+| `DEEPSEEK_API_KEY` / `DEEPSEEK_MODEL` / `DEEPSEEK_BASE_URL` | Legacy names, still honored | Optional |
+
+> **Why this layer exists**: a key you type into the Settings UI is written verbatim to
+> `settings.json` on disk. With `KNOWE_MODEL_API_KEY` set, no plaintext is left there, and the key
+> still isn't lost — it re-enters from `.env` at every start instead of from the config file. The
+> trade-off: in that mode a key pasted into the UI lives only until the next restart. If you set no
+> `.env` at all, behavior is exactly as before: what you type in the UI is what gets stored.
+
 ## Tuning options for advanced users
 
 Based on what this page has covered, the main things advanced users can tune are:

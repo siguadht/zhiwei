@@ -73,7 +73,17 @@ npm run test        # Vitest（前端）
 > 前后端之间的运行时协议和本地磁盘上的数据键，改了会直接砸运行（数据目录读不到、IPC 断链）。
 > 产品名只体现在界面与安装包上，见「关于本分支」。
 
-支持 `.env` 文件（python-dotenv）——**切勿提交到仓库**。
+### 模型密钥与 `.env`
+
+后端启动时读 `KNOWE_MODEL_API_KEY`（老变量名 `DEEPSEEK_API_KEY` 同样认），注入所有命中的模型绑定。
+`.env` 的查找顺序是——`KNOWE_ENV_FILE` → `<KNOWE_INSTALL_ROOT>/.env` → `<KNOWE_DATA_DIR>/.env` →
+仓库根 `.env` → dotenv 默认搜索；**不走当前工作目录**，因为 Electron 拉起子进程时的 `cwd` 不可预期。
+进程环境里已有的变量优先，`.env` 只补空缺。
+
+只要 env 密钥注入成功，模块就进入「封口」状态：`settings.json` 里所有 `api_key` 重写成空串，之后每次
+`_persist()` 都先剥密钥，`api_snapshot()` / `public_binding()` 只报 `has_api_key`。若没有任何绑定命中声明的
+作用域（`KNOWE_MODEL_PROVIDER` / `KNOWE_MODEL_BASE_URL`），则不封口、界面上存的 key 原样留在磁盘——一个
+误设的环境变量绝不能悄悄抹掉用户已有的密钥。`.env` **切勿提交到仓库**，仓库里只跟踪 `.env.example`。
 
 ## 构建 Windows 安装包
 

@@ -12,7 +12,7 @@
 **On this page**
 
 - [Three roles, three division lines](#three-roles-three-division-lines)
-- [Zhiwei: the platform-level host](#zinnia-the-platform-level-host)
+- [Zhiwei: the platform-level host](#zhiwei-the-platform-level-host)
 - [Coordinator: one general manager per project](#coordinator-one-general-manager-per-project)
 - [Workers: 24 roles, addable and removable](#workers-24-roles-addable-and-removable)
 - [Same tools, different minds](#same-tools-different-minds)

@@ -8,31 +8,23 @@
 
 Zhiwei turns agents into a team — inside the chat interface you already know. Create a dedicated group chat for each project, and build a team of agents customized to it.
 
+> Screenshots and demo clips are being re-recorded against this build, so this page has none yet.
+> The upstream skeleton's recordings show *its* interface, not what Zhiwei looks like now, and were
+> removed rather than left misleading.
+
 ---
 
 ## Build your Agent team
 
 Pull different agents into one group chat to serve a single project. Teams are organized by project — every project has its own dedicated group.
 
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/4c223c55-42f4-4c47-9c36-c14676afff50" width="80%" controls autoplay loop muted playsinline></video>
-</p>
-
 ## Customize your team members
 
 Every agent is an independent instance — with its own identity and memory, and a model service you can freely choose for each. Give different members different "brains", so the right member handles the right job.
 
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/994cc11b-793e-4ae8-ae65-4850bf257143" width="80%" controls autoplay loop muted playsinline></video>
-</p>
-
 ## One sentence in, the team works
 
 No prompt engineering, no task breakdowns to write. The Coordinator automatically splits your request into subtasks, assigns them to the right Workers, and reports back. When your decision is needed, a card pops up — one click and the team moves on.
-
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/e73a3a42-1089-47bc-a584-92939b9b1dee" width="80%" controls autoplay loop muted playsinline></video>
-</p>
 
 ## And more
 
@@ -62,7 +54,9 @@ What this branch adds — the part that makes it an *office* agent rather than a
    Coordinator issues a rework order. Built without touching the state machine.
 4. **Approval cards that don't betray you.** They used to expire silently after 5 minutes; now they wait.
 5. **Local account + key hygiene.** A real local login page (PBKDF2, hashes only), and a closed leak where
-   `GET /settings` returned API keys in plaintext to the renderer.
+   `GET /settings` returned API keys in plaintext to the renderer. The model key itself now comes from
+   `.env`: it lives in memory, `settings.json` keeps an empty string, and outward APIs report only
+   `has_api_key`.
 6. **Ledger / plan / dashboard**, all from real data — and deliberately no payment integration, no
    server-side accounts, and no invented columns (the ledger has no "signed off by customer" field,
    because that path has no implementation).
@@ -75,9 +69,33 @@ Full change list: [CHANGELOG.md](./CHANGELOG.md) · [CHANGELOG.zh-CN.md](./CHANG
 
 ## Quick start
 
-1. Build the installer locally (`npm run dist:win` / `npm run dist:mac`)
-2. Install and open Zhiwei, then configure your model service (API Key)
-3. Create a project group chat and start building your Agent team
+**Installer**
+
+```bash
+npm install
+npm run dist:win        # or dist:mac — output lands in release/
+```
+
+Install, open Zhiwei, set your model service, then create a project group and build your team.
+
+**From source**
+
+```bash
+npm install
+cp .env.example .env                       # key goes in KNOWE_MODEL_API_KEY
+python3.11 -m venv .venv                   # 3.11+ (this branch is tested on 3.12)
+.venv/bin/pip install -r backend/requirements.txt
+KNOWE_DEV_PYTHON="$PWD/.venv/bin/python" npm run electron:dev
+```
+
+**About the API key.** `.env` is the source of truth when `KNOWE_MODEL_API_KEY` is set: the backend
+injects it into the model binding at startup, `settings.json` keeps an empty string instead of the
+key, and the settings API only reports `has_api_key`. A key pasted into the UI still works, but is
+not written to disk in that mode — it lives until the next restart. Without `.env`, the app behaves
+as before and stores whatever you enter in Settings. `.env` is git-ignored; only `.env.example` is
+committed.
+
+Contributing / dev details: [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Learn more
 
