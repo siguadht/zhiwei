@@ -62,13 +62,28 @@ import {
 } from './updater';
 
 // ═══════════════════════════════════════════════════════════════
-// [调试铁律·用户拍板] 每次启动必带远程调试（不依赖环境变量，固化进主进程）
+// [v1.0.43 品牌印记] 开发态下 app.name 还是 package.json 的名字，macOS 菜单栏第一格
+//   会露出它；打包态由 productName 决定，所以这里只管开发态。必须在 ready 之前调。
+// [顺序铁律] 必须早于本文件任何 app.getPath('userData')：开发态那段「旧数据搬家」
+//   拿 userData 当迁移来源，名字没换时它等于打包版的数据根（…/Application Support/zhiwei），
+//   于是每次 npm run electron:dev 都会把正式版的数据整目录 renameSync 搬进仓库 data/。
+//   实测代价见 2026-10-22 那次「正式版数据凭空消失」排查。
+// ═══════════════════════════════════════════════════════════════
+if (!app.isPackaged) app.setName('知微 Zhiwei');
+
+// ═══════════════════════════════════════════════════════════════
+// [调试铁律·用户拍板] 开发态每次启动必带远程调试（不依赖环境变量，固化进主进程）
 //   地址：http://127.0.0.1:9222/devtools/inspector.html?ws=127.0.0.1:9222/devtools/page/<id>
 //   target id 每次重启会变，curl http://127.0.0.1:9222/json 取最新。
 //   两个开关必须成对：只有端口没有 Origin 放行时，浏览器 DevTools 的 ws 会被 403 拒 → 永远 disconnected。
+// [安全边界] 只对开发态生效：打包版带上它等于把 9222 交给本机任意进程、
+//   以及用户随手打开的任意网页（remote-allow-origins: * 会放行跨源 ws），
+//   连上就能替用户点界面、读全部聊天记录。
 // ═══════════════════════════════════════════════════════════════
-app.commandLine.appendSwitch('remote-debugging-port', '9222');
-app.commandLine.appendSwitch('remote-allow-origins', '*');
+if (!app.isPackaged) {
+  app.commandLine.appendSwitch('remote-debugging-port', '9222');
+  app.commandLine.appendSwitch('remote-allow-origins', '*');
+}
 
 // [v1.0.39-B2] 本地请求绕过系统代理（Clash 7891）：dev 下 5173 头像/模块、8080/8081
 // 后端全部直连。系统代理开着时 Chromium 连 127.0.0.1 也走代理 → 每张头像 600ms+，
@@ -325,10 +340,6 @@ let unreadDetailsCache: UnreadDetail[] = [];
 
 /** [v1.0 fix-p3 #3] APP/托盘图标源文件 —— 和窗口 icon 用同一张 */
 const APP_ICON = join(PROJECT_ROOT, 'public', 'brand', 'app-icon.png');
-
-// [v1.0.43 品牌印记] 开发态下 app.name 还是 package.json 的 "knowe"，macOS 菜单栏第一格
-// 会露出它；打包态由 productName 决定，所以这里只管开发态。必须在 ready 之前调。
-if (!app.isPackaged) app.setName('知微 Zhiwei');
 
 /** 当前后端子进程句柄（没起来时为 null） */
 let backendProc: ChildProcess | null = null;

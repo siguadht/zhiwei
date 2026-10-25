@@ -26,8 +26,9 @@
     "icon:ico": "node scripts/make-icon-ico.mjs",
     "icon:icns": "node scripts/make-icon-icns.mjs",
     "copy:chromium": "node scripts/copy-chromium.mjs",
+    "ensure:electron-dist": "node scripts/ensure-electron-dist.mjs",
     "dist:win": "node scripts/clean-electron-build.mjs && npm run icon:ico && npm run electron:build && npm run copy:chromium && electron-builder --win nsis",
-    "dist:mac": "node scripts/clean-electron-build.mjs && npm run icon:icns && npm run electron:build && npm run copy:chromium && electron-builder --mac"
+    "dist:mac": "node scripts/clean-electron-build.mjs && npm run ensure:electron-dist && npm run icon:icns && npm run electron:build && npm run copy:chromium && electron-builder --mac && npm run ensure:electron-dist"
   },
   "dependencies": {
     "@tiptap/extension-mention": "^3.30.1",
