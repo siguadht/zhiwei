@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="media/icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="知微 Zhiwei · 会写材料，也会自己挑毛病">
+<meta property="og:description" content="三个岗位在你自己电脑上接力：数据分析、技术写作、质检。交付能改的 PPT、Word、Excel，附质检报告，不合格自己打回返工。">
+<meta property="og:image" content="media/icon.png">
+<title>知微 Zhiwei · 会写材料，也会自己挑毛病</title>
+<meta name="description" content="知微在你自己电脑上开工：数据分析、技术写作、质检三个岗位接力，交付能打开的 PPT、Word、Excel，附质检报告，不合格自己打回返工。">
+<style>
+  :root{
+    --ink:#141414; --gray:#5f5f5b; --light:#9a9a96; --faint:#c2c2be;
+    --line:#ededed; --line2:#dcdcd8; --wash:#f6f6f4; --dark:#141414;
+    --sans:"PingFang SC","Helvetica Neue",Helvetica,"Microsoft YaHei",sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:104px}
+  body{margin:0;background:#fff;color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3{margin:0;font-weight:500;letter-spacing:-.035em;line-height:1.1}
+  p{margin:0}
+  .wrap{max-width:1360px;margin:0 auto;padding:0 48px}
+  .k{font-size:12px;letter-spacing:.16em;color:var(--light);text-transform:uppercase}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+
+  header{position:fixed;inset:0 0 auto;height:72px;z-index:60;background:rgba(255,255,255,.86);
+    backdrop-filter:blur(10px) saturate(160%);border-bottom:1px solid transparent;transition:border-color .35s}
+  header.scrolled{border-bottom-color:var(--line)}
+  header .prog{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--ink)}
+  .nav{max-width:1360px;margin:0 auto;height:72px;padding:0 48px;display:flex;align-items:center;gap:44px}
+  .brand{font-size:16px;font-weight:600;letter-spacing:.1em}
+  .nav nav{display:flex;gap:34px;font-size:14px;color:var(--gray)}
+  .nav nav a{transition:color .2s}
+  .nav nav a:hover{color:var(--ink)}
+  .nav nav a.on{color:var(--ink)}
+  .right{margin-left:auto;display:flex;align-items:center;gap:22px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 26px;font-size:15px;
+    background:var(--ink);color:#fff;border:1px solid var(--ink);border-radius:0;cursor:pointer;
+    transition:transform .2s cubic-bezier(.2,.7,.2,1),opacity .2s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn.ghost:hover{background:var(--wash)}
+  .btn.sm{height:34px;padding:0 16px;font-size:14px}
+
+  /* ---------- hero ---------- */
+  .hero{padding:170px 0 96px;display:grid;grid-template-columns:1fr 1.22fr;gap:60px;align-items:center}
+  .hero h1{font-size:clamp(38px,4.2vw,64px);letter-spacing:-.05em;line-height:1.12}
+  /* headline lines slide up out of their own clip box instead of the block fading in */
+  .mask .ln{display:block;overflow:hidden;padding-bottom:.06em;margin-bottom:-.06em}
+  .mask .ln>i{display:block;font-style:normal;transform:translateY(110%);
+    transition:transform 1.05s cubic-bezier(.16,1,.3,1)}
+  .mask .ln:nth-child(2)>i{transition-delay:.1s}
+  .mask .ln:nth-child(3)>i{transition-delay:.2s}
+  .mask.reveal{opacity:1;transform:none}
+  .mask.in .ln>i{transform:none}
+  .hero .lede{font-size:18px;color:var(--gray);margin-top:28px;max-width:520px}
+  .cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:40px}
+  .cta .meta{font-size:13px;color:var(--light)}
+  .hero ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px 22px;padding:0;margin:38px 0 0;
+    font-size:13px;color:var(--gray)}
+  .hero ul li::before{content:"";display:inline-block;width:5px;height:5px;background:var(--faint);
+    margin-right:8px;vertical-align:2px}
+
+  /* ---------- the slide, two states ---------- */
+  .deck{position:relative;will-change:transform}
+  .tabs{display:flex;gap:26px;font-size:13px;margin-bottom:14px}
+  .tabs button{font:inherit;font-size:13px;background:none;border:0;padding:0 0 8px;cursor:pointer;
+    color:var(--light);border-bottom:1px solid transparent;transition:color .2s,border-color .2s}
+  .tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ink)}
+  .slide{position:relative;aspect-ratio:16/10;background:#fff;border:1px solid var(--line2);
+    padding:30px 34px 26px;display:flex;flex-direction:column}
+  .slide .top{display:flex;align-items:baseline;gap:16px}
+  .slide h3{font-size:clamp(16px,1.35vw,21px);letter-spacing:-.02em;line-height:1.35}
+  .slide .stamp{margin-left:auto;font-size:11px;color:var(--faint);letter-spacing:.1em;white-space:nowrap}
+  .slide .body{display:grid;grid-template-columns:.85fr 1.15fr;gap:30px;flex:1;margin-top:18px;min-height:0}
+  .chart{display:flex;flex-direction:column}
+  .chart .cap{font-size:11px;color:var(--light);letter-spacing:.04em}
+  .bars{display:flex;align-items:flex-end;gap:12px;flex:1;padding:14px 0 8px;min-height:0}
+  .bars i{display:block;background:var(--line2);flex:1;transition:height .5s cubic-bezier(.2,.7,.2,1),background .3s}
+  .bars i.hi{background:var(--ink)}
+  .axis{display:flex;gap:12px;font-size:10px;color:var(--faint);font-family:var(--mono)}
+  .axis span{flex:1;text-align:center}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{text-align:left;padding:7px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{color:var(--light);font-weight:400;font-size:11px;letter-spacing:.06em}
+  th:last-child,td:last-child{text-align:right}
+  td.n{text-align:right;font-family:var(--mono)}
+  tr.sum td{border-bottom:0;color:var(--gray)}
+  .concl{margin-top:14px;font-size:12.5px;line-height:1.65;color:var(--gray);border-top:1px solid var(--line);
+    padding-top:12px;transition:color .3s .15s,background .3s .15s,border-color .3s .15s,padding .3s .15s,opacity .16s}
+  .concl b{font-weight:600;color:var(--ink)}
+  .concl i{display:block;font-style:normal;font-size:11px;letter-spacing:.1em;color:#a8a8a4;margin-bottom:4px}
+  .deck[data-state=before] .concl{background:var(--dark);color:#fff;border-top-color:var(--dark);padding:14px 16px;margin-top:10px}
+  .deck[data-state=before] .concl b{color:#fff}
+  .deck[data-state=before] .concl i{color:rgba(255,255,255,.55)}
+  /* rejected state: the table is simply not there, and the note is */
+  .ledger{position:relative}
+  .ledger table{transition:opacity .45s cubic-bezier(.2,.7,.2,1),transform .45s cubic-bezier(.2,.7,.2,1)}
+  .ledger .void{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:12px;letter-spacing:.06em;color:var(--faint);opacity:0;transition:opacity .5s .3s}
+  .deck[data-state=before] .ledger table{opacity:0;transform:translateY(8px)}
+  .deck[data-state=before] .ledger .void{opacity:1}
+  .deck[data-state=before] .bars i.hi{background:var(--line2)}
+  .slide h3{transition:opacity .16s}
+  .badge{font-size:11px;letter-spacing:.1em;color:var(--light);border:1px solid var(--line2);
+    padding:4px 10px;background:#fff;white-space:nowrap;flex:0 0 auto}
+  .deck[data-state=before] .badge{color:#fff;background:var(--dark);border-color:var(--dark)}
+  .hint{margin-top:52px;font-size:12px;color:var(--faint)}
+
+  /* ---------- numbers ---------- */
+  .stats{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .stat{flex:1 1 0;padding:44px 8px 42px}
+  .stat + .stat{border-left:1px solid var(--line)}
+  .stat b{display:block;font-size:clamp(34px,3.4vw,52px);font-weight:400;letter-spacing:-.04em;
+    font-variant-numeric:tabular-nums;line-height:1}
+  .stat span{font-size:12.5px;color:var(--light);display:block;margin-top:10px}
+
+  /* ---------- demo ---------- */
+  .demo{margin-top:72px}
+  .demo video{display:block;width:100%;max-width:calc(82vh*1.6);margin-inline:auto;aspect-ratio:16/10;background:var(--wash);border:1px solid var(--line2)}
+  .demo .dcap{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline;margin-top:16px}
+  .demo .dcap b{font-size:13px;font-weight:600;letter-spacing:.02em}
+  .demo .dcap span{font-size:13px;color:var(--light);max-width:720px}
+  .get .note{font-size:12.5px;color:var(--light);margin-top:18px;max-width:460px}
+  .opt.soon{background:transparent;border-style:dashed;color:var(--light);cursor:default}
+  .opt.soon:hover{border-color:var(--line2);transform:none}
+  .opt.soon b{color:var(--gray)}
+
+  /* ---------- timeline ---------- */
+  section{padding:120px 0 0}
+  .eyebrow{display:flex;align-items:center;gap:12px;font-size:11.5px;letter-spacing:.2em;color:var(--light);margin-bottom:36px}
+  .eyebrow b{font-family:var(--mono);font-weight:400;letter-spacing:0;color:var(--ink)}
+  .eyebrow i{flex:1;height:1px;background:var(--line);margin-left:10px}
+  .head{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end}
+  .head h2{font-size:clamp(28px,3.2vw,46px)}
+  .head p{color:var(--gray);font-size:16px}
+  .tl{display:grid;grid-template-columns:repeat(4,1fr);margin-top:64px;border-top:1px solid var(--line)}
+  .tl div{padding:26px 26px 0 0;position:relative}
+  .tl div::before{content:"";position:absolute;top:-1px;left:0;width:34px;height:1px;background:var(--ink)}
+  .tl time{font-family:var(--mono);font-size:12px;color:var(--light)}
+  .tl h4{margin:8px 0 6px;font-size:17px;font-weight:600}
+  .tl p{font-size:13.5px;color:var(--gray)}
+
+  /* ---------- interface ---------- */
+  .win{margin-top:64px;border:1px solid var(--line2);display:grid;grid-template-columns:230px 1fr;background:#fff}
+  .win .bar{grid-column:1/-1;height:46px;border-bottom:1px solid var(--line);background:var(--wash);
+    display:flex;align-items:center;padding:0 18px;font-size:13px}
+  .win .bar b{letter-spacing:.1em}
+  .win .bar span{margin-left:auto;font-size:12px;color:var(--light)}
+  .rail{border-right:1px solid var(--line);padding:18px 14px;font-size:13px;background:#fbfbfa}
+  .sess{padding:10px 12px;border:1px solid transparent;color:var(--gray)}
+  .sess.on{border-color:var(--ink);color:var(--ink);background:#fff}
+  .sess i{display:block;font-style:normal;font-size:11px;color:var(--faint)}
+  .feed{padding:28px 32px;display:flex;flex-direction:column;gap:14px}
+  .msg{border:1px solid var(--line);padding:14px 18px;transition:border-color .25s,background .25s}
+  .msg:hover{border-color:var(--line2);background:var(--wash)}
+  .msg .who{font-size:11.5px;color:var(--light);letter-spacing:.04em}
+  .msg .txt{font-size:14.5px;margin-top:5px}
+  .msg.no{border-left:2px solid var(--ink)}
+  .files{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+  .file{border:1px solid var(--line);background:#fff;padding:12px 14px;font-size:12px}
+  .file b{display:block;font-size:13px;font-weight:500;margin-bottom:5px}
+  .file span{color:var(--light)}
+
+  /* ---------- lists ---------- */
+  .rows{margin-top:56px;border-top:1px solid var(--line)}
+  .r{display:grid;grid-template-columns:250px 1fr auto;gap:28px;align-items:baseline;
+    padding:30px 0;border-bottom:1px solid var(--line);transition:padding-left .25s,background .25s}
+  .r:hover{padding-left:12px;background:var(--wash)}
+  .r h4{font-size:18px;font-weight:600;margin:0}
+  .r p{font-size:15px;color:var(--gray)}
+  .r em{font-style:normal;font-size:12px;color:var(--faint);letter-spacing:.06em}
+
+  /* ---------- get ---------- */
+  .get{margin-top:130px;background:var(--wash);border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:96px 0}
+  .get .g{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:end}
+  .get h2{font-size:clamp(28px,3.2vw,44px)}
+  .get .opts{display:flex;flex-direction:column;gap:14px}
+  .opt{display:flex;align-items:center;gap:16px;border:1px solid var(--line2);background:#fff;padding:16px 20px;
+    transition:border-color .25s,transform .25s}
+  .opt:hover{border-color:var(--ink);transform:translateY(-2px)}
+  .opt b{font-size:15px;font-weight:600}
+  .opt span{font-size:12.5px;color:var(--light);margin-left:auto;font-family:var(--mono)}
+
+  footer{padding:52px 0 68px;font-size:12.5px;color:var(--light)}
+  footer .f{display:flex;flex-wrap:wrap;gap:30px;align-items:center}
+
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .reveal{opacity:1;transform:none;transition:none}
+    .mask .ln>i{transform:none;transition:none}
+    .deck{transform:none!important}
+    .btn:hover,.opt:hover{transform:none}
+  }
+  @media (max-width:1080px){
+    .hero{grid-template-columns:1fr;gap:64px;padding-top:140px}
+    .head,.get .g{grid-template-columns:1fr;gap:24px}
+    .tl{grid-template-columns:1fr 1fr}
+    .r{grid-template-columns:1fr;gap:6px}
+    .r em{display:none}
+  }
+  @media (max-width:720px){
+    .wrap,.nav{padding:0 22px}
+    .nav nav{display:none}
+    .win{grid-template-columns:1fr}
+    .rail{display:none}
+    .files{grid-template-columns:1fr}
+    .slide .body{grid-template-columns:1fr}
+    .tl{grid-template-columns:1fr}
+    .stat{flex:1 1 50%}
+  }
+</style>
+</head>
+<body>
+<header id="hd"><div class="nav">
+  <div class="brand">知微｜ZHIWEI</div>
+  <nav>
+    <a href="#how">怎么干活</a>
+    <a href="#inside">界面</a>
+    <a href="#rules">写法与尺子</a>
+    <a href="#scenes">用在哪</a>
+  </nav>
+  <div class="right"><a class="btn sm" href="#get">获取安装包</a></div>
+</div><div class="prog" id="prog"></div></header>
+
+<main class="wrap">
+  <div class="hero">
+    <div>
+      <div class="k reveal">Office Agent · 本地运行</div>
+      <h1 class="reveal mask"><span class="ln"><i>会写材料，</i></span><span class="ln"><i>也会自己挑毛病。</i></span></h1>
+      <p class="lede reveal">知微在你自己电脑上开工。数据分析出表、技术写作成文、质检官拿尺子量，交给你的是能直接改的 PPT、Word、Excel —— 附一份质检报告，不合格它自己打回返工。</p>
+      <div class="cta reveal">
+        <a class="btn" href="#get">获取安装包</a>
+        <a class="btn ghost" href="#demo">看它干活</a>
+      </div>
+      <ul class="reveal">
+        <li>文件不上传</li><li>装完就能用</li><li>写法可以自己改</li><li>本机跑，不依赖云</li>
+      </ul>
+    </div>
+
+    <div class="deck reveal" id="deck" data-state="after">
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-go="after">打回后 · 质检通过</button>
+        <button role="tab" aria-selected="false" data-go="before">打回前 · 被质检拦下</button>
+      </div>
+      <div class="slide">
+        <div class="top"><h3 id="ttl">GOP 40.04%，比预算 42% 差 1.96 个点，合 3.27 万元</h3><div class="stamp">P 07 / 12</div><div class="badge" id="badge">质检通过</div></div>
+        <div class="body">
+          <div class="chart">
+            <div class="cap">周维度单房收益（元）</div>
+            <div class="bars">
+              <i class="hi" style="height:100%" title="第 1 周 603.4"></i><i style="height:60%" title="第 2 周 363.9"></i>
+              <i style="height:46%" title="第 3 周 275.6"></i><i style="height:45%" title="第 4 周 270.5"></i>
+              <i style="height:47%" title="第 5 周 282.8"></i>
+            </div>
+            <div class="axis"><span>603</span><span>364</span><span>276</span><span>271</span><span>283</span></div>
+          </div>
+          <div class="ledger" id="ledger">
+            <table>
+              <tr><th>成本项</th><th>金额</th><th>对缺口</th></tr>
+              <tr><td>人力成本（含社保）</td><td class="n">28.80 万</td><td class="n">2.40 万</td></tr>
+              <tr><td>水电气能耗</td><td class="n">9.65 万</td><td class="n">0.80 万</td></tr>
+              <tr><td>客房布草洗涤</td><td class="n">6.82 万</td><td class="n">450 元</td></tr>
+              <tr><td>一次性耗材</td><td class="n">4.36 万</td><td class="n">288 元</td></tr>
+              <tr class="sum"><td>五项增量合计</td><td class="n">—</td><td class="n">3.30 万</td></tr>
+            </table>
+            <div class="void">这一页只有结论，没有底表</div>
+          </div>
+        </div>
+        <div class="concl" id="concl"><i>项目经理 16:58 · 签收</i><b>结论</b> 可追溯增量 3.30 万元覆盖缺口 101%，其中国庆加班费 2.40 万占 73.5%；「差 2 个点」是取整说法，实际差 1.96 个点。</div>
+      </div>
+      <div class="hint">同一页的两种状态自动在演：交付 → 质检打回 → 返工 → 签收 · 数字取自 10 月经营分析表 · 鼠标移上来就交给你</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat reveal"><b data-count="12">0</b><span>步派工，一步一张回单</span></div>
+    <div class="stat reveal"><b data-count="2">0</b><span>次质检打回，都是它自己判的</span></div>
+    <div class="stat reveal"><b data-count="3">0</b><span>件成果签收</span></div>
+    <div class="stat reveal"><b data-count="10">0</b><span>本菜谱与尺子随包上机</span></div>
+  </div>
+
+  <div class="demo reveal" id="demo">
+    <video controls playsinline preload="metadata" poster="media/poster.jpg" src="media/demo.mp4"></video>
+    <div class="dcap"><b>本机实录 · 1 分 50 秒</b><span>一句话派进去：总管拆单、写手写、质检官拿尺子逐条量，不合格退回重写，判过了才签收。画面全部来自真跑的那一次，包括被打回的那一屏；等待的部分做了加速，字幕是后期叠的。</span></div>
+  </div>
+
+  <section id="how">
+    <div class="eyebrow reveal"><b>01</b>怎么干活<i></i></div>
+    <div class="head">
+      <h2 class="reveal">派一句活，<br>剩下它自己排队。</h2>
+      <p class="reveal">你只说结果。它把活拆成步，一步一单，谁干的、干到哪、被谁打回、返了几轮，全都落在文件里，事后翻得回来。</p>
+    </div>
+    <div class="tl">
+      <div class="reveal"><time>15:15</time><h4>派工</h4><p>一句话进来，项目经理拆成 12 步，每步写明交什么、按哪本写法交。</p></div>
+      <div class="reveal"><time>15:22</time><h4>开工</h4><p>数据分析读底表出表，技术写作按写法成文，全程在你本机。</p></div>
+      <div class="reveal"><time>15:41</time><h4>量一遍</h4><p>质检官跑脚本：页数、口径、守恒、错字。不合格直接打回，写明第几页第几条。</p></div>
+      <div class="reveal"><time>16:58</time><h4>签收</h4><p>复测通过才进台账。台账记着返了几轮 —— 不是"看着像做完了"。</p></div>
+    </div>
+  </section>
+
+  <section id="inside">
+    <div class="eyebrow reveal"><b>02</b>界面<i></i></div>
+    <div class="head">
+      <h2 class="reveal">界面里没有进度条，<br>只有一张张回单。</h2>
+      <p class="reveal">左边是活，右边是过程。打回不是报错，是中间插一条批注，然后它接着干。</p>
+    </div>
+    <div class="win reveal">
+      <div class="bar"><b>知微</b><span>门店 10 月经营</span></div>
+      <div class="rail">
+        <div class="sess on">店长月度述职<i>3 件成果 · 已签收</i></div>
+        <div class="sess">品质督办整改<i>进行中</i></div>
+        <div class="sess">10 月经营分析<i>已签收</i></div>
+        <div class="sess">多店周报汇总<i>草稿</i></div>
+      </div>
+      <div class="feed">
+        <div class="msg"><div class="who">你 · 15:15</div><div class="txt">把 10 月经营数据做成店长述职 PPT，写完按清单自查一遍</div></div>
+        <div class="msg"><div class="who">数据分析 · 15:22</div><div class="txt">12 页初版，GOP 40.04%，未达预算 42%，成本拆到四项</div></div>
+        <div class="msg no"><div class="who">质检官 · 15:41</div><div class="txt">第 7 页只有结论没有底表；成本项对不上守恒断言 —— 打回</div></div>
+        <div class="msg"><div class="who">技术写作 · 16:04</div><div class="txt">补底表、改口径，质检复测通过</div></div>
+        <div class="msg"><div class="who">项目经理 · 16:58 签收 3 件</div>
+          <div class="files">
+            <div class="file"><b>店长月度述职.pptx</b><span>12 页 · 质检通过</span></div>
+            <div class="file"><b>品质督办整改报告.docx</b><span>通报逐条闭环</span></div>
+            <div class="file"><b>10月经营分析.xlsx</b><span>成本与渠道拆解</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="rules">
+    <div class="eyebrow reveal"><b>03</b>写法与尺子<i></i></div>
+    <div class="head">
+      <h2 class="reveal">它凭什么写得像你家的材料。</h2>
+      <p class="reveal">写法是文本文件，装在你电脑上，你能自己改。改一行字，下一份材料就照新的写；尺子跟着改，交不出合格品就进不了台账。</p>
+    </div>
+    <div class="rows">
+      <div class="r reveal"><h4>述职与汇报</h4><p>结论先行、一页一图、每个数字带底表出处</p><em>PPT 写法 + 尺子</em></div>
+      <div class="r reveal"><h4>整改与通报</h4><p>逐条对应原文、责任到岗位、闭环到时限</p><em>Word 写法 + 尺子</em></div>
+      <div class="r reveal"><h4>经营分析</h4><p>成本与渠道拆到项、合计必须对得平</p><em>Excel 写法 + 尺子</em></div>
+      <div class="r reveal"><h4>验收纪律</h4><p>先质检后签收，没通过不许交到你手上</p><em>项目经理</em></div>
+    </div>
+  </section>
+
+  <section id="scenes">
+    <div class="eyebrow reveal"><b>04</b>用在哪<i></i></div>
+    <div class="head">
+      <h2 class="reveal">材料天天要的地方。</h2>
+      <p class="reveal">月度上会、督查整改、多店合并 —— 活不一样，套路一样：派下去、量一遍、签收。</p>
+    </div>
+    <div class="rows">
+      <div class="r reveal"><h4>连锁门店</h4><p>店长月度述职、品质督办整改报告、经营分析表</p><em>三件一次派</em></div>
+      <div class="r reveal"><h4>加盟总部</h4><p>多店报表合并、通报下发与回执跟踪</p><em>周报汇总</em></div>
+      <div class="r reveal"><h4>区域运营</h4><p>巡店打分表转整改文稿、责任分解</p><em>巡检通报</em></div>
+      <div class="r reveal"><h4>培训与制度</h4><p>员工手册按模板改版、课件重排</p><em>制度文档</em></div>
+      <div class="r reveal"><h4>会议与调研</h4><p>录音转要点待办、周边门店价格带整理</p><em>纪要 / 调研</em></div>
+    </div>
+  </section>
+</main>
+
+<div class="get" id="get">
+  <div class="wrap g">
+    <div>
+      <div class="k reveal">获取</div>
+      <h2 class="reveal">装完就有写法和尺子，<br>不用配环境。</h2>
+      <p class="reveal" style="color:var(--gray);margin-top:22px;max-width:460px">一个客户端，三个岗位在你本机开工。填一个模型 API Key 就能派活，材料始终留在你自己的电脑上。</p>
+      <p class="reveal note">安装包没有做系统公证。第一次打开请在文件上按住 Control 点一下，选「打开」。</p>
+    </div>
+    <div class="opts reveal">
+      <a class="opt" href="https://github.com/siguadht/zhiwei/releases/latest/download/Zhiwei-macOS-arm64.dmg"><b>下载 macOS 版</b><span>Apple Silicon · 189 MB · macOS 12 及以上</span></a>
+      <a class="opt" href="#demo"><b>先看演示</b><span>一句派工 → 质检打回 → 返工 → 复测 → 签收，全程实录</span></a>
+      <div class="opt soon"><b>Windows 版</b><span>正在打包，11 月开放下载</span></div>
+    </div>
+  </div>
+</div>
+
+<footer><div class="wrap f">
+  <div class="brand" style="font-size:14px">知微｜ZHIWEI</div>
+  <div>v1.0.43</div>
+  <div>文件在你自己电脑上，不上传、不外发</div>
+  <div style="margin-left:auto">© 2026 知微</div>
+</div></footer>
+
+<script>
+  const hd=document.getElementById('hd');
+  addEventListener('scroll',()=>hd.classList.toggle('scrolled',scrollY>8),{passive:true});
+  const deck=document.getElementById('deck');
+  const ttl=document.getElementById('ttl'),concl=document.getElementById('concl'),badge=document.getElementById('badge');
+  const AFTER={t:'GOP 40.04%，比预算 42% 差 1.96 个点，合 3.27 万元',
+    c:'<i>项目经理 16:58 · 签收</i><b>结论</b> 可追溯增量 3.30 万元覆盖缺口 101%，其中国庆加班费 2.40 万占 73.5%；「差 2 个点」是取整说法，实际差 1.96 个点。'};
+  const BEFORE={t:'10 月 GOP 未达预算，主要是成本没控住',
+    c:'<i>质检官 15:41 · 打回，2 处不合格</i><b>第 7 页只有结论没有底表；成本项对不上守恒断言。</b>重写。'};
+  const tabs=[...document.querySelectorAll('.tabs button')];
+  const setState=s=>{
+    if(deck.dataset.state===s)return;
+    deck.dataset.state=s;
+    tabs.forEach(x=>x.setAttribute('aria-selected',String(x.dataset.go===s)));
+    const d=s==='before'?BEFORE:AFTER;
+    badge.textContent=s==='before'?'质检不通过':'质检通过';
+    ttl.style.opacity='0';concl.style.opacity='0';
+    setTimeout(()=>{ttl.textContent=d.t;concl.innerHTML=d.c;ttl.style.opacity='';concl.style.opacity=''},170);
+  };
+  tabs.forEach(b=>{b.onclick=()=>{hand();setState(b.dataset.go)}});
+
+  // the two states play themselves; the deck hands control over the moment
+  // the pointer reaches it, so nobody fights an animation they didn't start
+  let timer=null,phase=0,live=false,taken=false;
+  const hand=()=>{taken=true;live=false;clearTimeout(timer)};
+  const step=()=>{
+    if(!live)return;
+    phase++;
+    const s=phase%2?'before':'after';
+    setState(s);
+    timer=setTimeout(step,s==='before'?4600:7200);
+  };
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    new IntersectionObserver(es=>es.forEach(e=>{
+      clearTimeout(timer);
+      if(taken)return;
+      live=e.isIntersecting;
+      if(live)timer=setTimeout(step,2600);
+    }),{threshold:.4}).observe(deck);
+    deck.addEventListener('pointerenter',hand);
+  }
+
+  document.querySelectorAll('h2.reveal').forEach(h=>{
+    h.classList.add('mask');
+    const parts=h.innerHTML.split(/<br\s*\/?>/i).map(s=>s.trim()).filter(Boolean);
+    h.innerHTML=parts.map(p=>'<span class="ln"><i>'+p+'</i></span>').join('');
+  });
+
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}
+  }),{rootMargin:'0px 0px -10% 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // anchor jumps and mid-page refreshes can skip right past an element, so the
+  // observer never fires for it and the block would stay invisible forever
+  const sweep=()=>{
+    document.querySelectorAll('.reveal:not(.in)').forEach(el=>{
+      if(el.getBoundingClientRect().top<innerHeight*0.94){el.classList.add('in');io.unobserve(el)}
+    });
+  };
+  addEventListener('scroll',sweep,{passive:true});
+  addEventListener('resize',sweep);
+  addEventListener('hashchange',()=>setTimeout(sweep,60));
+  sweep();
+
+  const runCounter=el=>{
+    if(el.dataset.done)return;el.dataset.done='1';
+    const end=+el.dataset.count,t0=performance.now();
+    const step=t=>{const p=Math.min(1,(t-t0)/900);el.textContent=Math.round(end*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step)};
+    requestAnimationFrame(step);
+  };
+  const cio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){runCounter(e.target);cio.unobserve(e.target)}}),{threshold:.35});
+  document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    let raf=0;
+    addEventListener('scroll',()=>{
+      if(raf)return;raf=requestAnimationFrame(()=>{raf=0;
+        const r=deck.getBoundingClientRect();
+        const y=Math.max(-28,Math.min(28,(r.top-innerHeight*.45)*.045));
+        deck.style.transform='translateY('+y.toFixed(1)+'px)';
+      });
+    },{passive:true});
+  }
+
+  const prog=document.getElementById('prog');
+  const links=[...document.querySelectorAll('.nav nav a')];
+  const targets=links.map(a=>document.querySelector(a.getAttribute('href')));
+  addEventListener('scroll',()=>{
+    const max=document.documentElement.scrollHeight-innerHeight;
+    prog.style.width=Math.min(100,max>0?scrollY/max*100:0).toFixed(2)+'%';
+    let cur=-1;
+    targets.forEach((s,i)=>{if(s&&s.getBoundingClientRect().top<innerHeight*.4)cur=i});
+    links.forEach((a,i)=>a.classList.toggle('on',i===cur));
+  },{passive:true});
+</script>
+</body>
+</html>
