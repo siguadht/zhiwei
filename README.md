@@ -6,6 +6,8 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
+Product site and a two-minute recording of a real run: <https://siguadht.github.io/zhiwei/>
+
 Zhiwei is an office agent, not a chat agent. Drop your material in, say one sentence, and what comes
 back is a real `.pptx` / `.docx` / `.xlsx` — Chinese text you can select and re-typeset in Office, not
 a picture of a slide. And it does not hand you the first draft it made: a QA member checks the file
