@@ -57,6 +57,15 @@ tags: ppt,pptx,幻灯片,演示,汇报,deck
 - 项目符号用**真 bullet**（`a:buChar`），不要手打 "• " 前缀——手打的在改字时会变成文本的一部分。
 - 版式一律 `add_textbox` 自己排版，**不要留 PowerPoint 的空占位符**（`is_placeholder` 必须为 0），否则打开时满屏"单击此处添加文本"。
 - 配色：一个主色 + 一个深色 + 灰阶，最多三个。不许渐变、不许阴影、不许花哨背景。
+- 落盘前把文件属性写清楚，别把模板自带的陌生人留在交付物里（python-pptx 的空白模板
+  `lastModifiedBy` 是 "Steve Canny"，用户右键看"文件属性"就会看到它）：
+
+  ```python
+  cp = prs.core_properties
+  cp.author = cp.last_modified_by = "知微"
+  cp.title = "店长月度述职（2026 年 10 月）"      # 用真实标题，不留空
+  ```
+
 - 文本框宽度按 16:9 页面留左右各 ≥ 1.2 英寸边距；正文末行估算位置不得超过页脚线。
 
 ## 三、交付前必须自检（跑完，把结果贴进报告）

@@ -74,6 +74,8 @@ tags: 做表格,写表格,表格制作,Excel表格,excel表格,数据表,台账,
               cell.number_format = "0%"                 # 百分比：小数 + 格式
 
   ws.freeze_panes = "A2"
+  wb.properties.creator = "知微"            # 不设就是 "openpyxl"，会被看文件属性的人看到
+  wb.properties.title = "10 月经营分析"
   wb.save(path)
   ```
 
