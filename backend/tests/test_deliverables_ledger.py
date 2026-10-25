@@ -136,6 +136,32 @@ class LedgerTests(unittest.TestCase):
         self.assertIsNone(self._row(out, "C.pptx")["qa_verdict"], "作者自检不能当质检裁决")
         self.assertIsNone(self._row(out, "report-05-writer_1-自检留档.md")["qa_verdict"])
 
+    # ── 3c) 成员用中文文件名、还把报告放进子目录：裁决照样要挂得上
+    def test_chinese_named_report_in_subdir_carries_verdict(self) -> None:
+        sha = self._file("品质经营复盘_2026年10月.docx", "正文")
+        self._deliver("t1", 1, "writer_1")
+        # 报告由测试岗交回，落在子目录里，名字完全不走 report-NN 约定
+        sub = self.work / "脚本"
+        sub.mkdir()
+        (sub / "报告_品质经营复盘质检.md").write_text(
+            "- 被检文件：`品质经营复盘_2026年10月.docx`（项目根目录）\n\n"
+            "## 三、不合格 1 条\n占比列口径错配\n\n结论：打回（1 条不合格：口径错配）\n",
+            encoding="utf-8")
+        (sub / "报告_品质经营复盘质检_复测.md").write_text(
+            "- 被检文件：`品质经营复盘_2026年10月.docx`（项目根目录）\n\n"
+            "不合格已消除。\n\n结论：通过\n", encoding="utf-8")
+        events = [
+            self._event(1, "t1", "writer_1", [{"path": "品质经营复盘_2026年10月.docx", "sha256": sha}]),
+            self._event(2, "t2", "qa_1", [{"path": "报告_品质经营复盘质检.md", "sha256": "x"}]),
+            self._event(3, "t3", "qa_1", [{"path": "报告_品质经营复盘质检_复测.md", "sha256": "y"}]),
+        ]
+        out = self._build(events)
+        r = self._row(out, "品质经营复盘_2026年10月.docx")
+        self.assertEqual([q["report"] for q in r["qa"]],
+                         ["报告_品质经营复盘质检.md", "报告_品质经营复盘质检_复测.md"])
+        self.assertEqual(r["qa_verdict"], "通过", "复测在后，取最后一条")
+        self.assertEqual(r["qa_link"], "被检标注")
+
     # ── 4) 多点名时用「被检」标注 / 提及次数消歧 ────────────
     def test_ambiguous_report_does_not_overwrite_clean_link(self) -> None:
         sha_old = self._file("竞品分析.pptx", "原稿")

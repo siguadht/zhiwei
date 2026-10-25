@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 from datetime import datetime
 from pathlib import Path
@@ -34,6 +35,11 @@ _DELIVERABLE_EXTS = {".pptx", ".docx", ".xlsx", ".ppt", ".doc", ".xls", ".pdf", 
 _SUPPORT_PREFIXES = ("make_", "verify_", "check_", "build_", "gen_")
 
 _REPORT_RE = re.compile(r"^report-(\d{1,4})-([A-Za-z0-9_\u4e00-\u9fff]+)-(.+)\.md$")
+# 成员实际写报告时用的是中文文件名（报告_品质经营复盘质检.md），而且常放进子目录
+# （脚本/、报告/）。交付物按菜谱恒落在项目根，报告却不一定 —— 所以报告递归找、
+# 交付物只看根目录。名字里带这些词的 .md 才进报告池，再靠岗位判据决定谁能出裁决。
+_REPORTISH_RE = re.compile(r"质检|复测|验收|审校|自检|审核")
+_REPORT_SKIP_DIRS = {"_libs", "node_modules", "__pycache__", "素材", "rec"}
 _INSTRUCTION_RE = re.compile(r"instruction-(\d{1,4})-([A-Za-z0-9_\u4e00-\u9fff]+)-(.+)\.md$")
 _QA_VERDICT_RE = re.compile(r"^结论：\s*(通过|打回)(（(.*)）)?\s*$")
 # 版本号后缀：_r1 / _v2 / _返工 / _合格 —— 归组时剥掉，剩下的就是「同一个东西」
@@ -159,6 +165,22 @@ def _task_orders(runtime_dir: Path) -> dict[str, dict[str, Any]]:
 # 质检侧：报告末行取裁决，正文点名认领被检文件
 # ═══════════════════════════════════════════════════════════════
 
+def _walk_reports(project_dir: Path) -> list[Path]:
+    """项目根 + 一层子目录里的候选报告文件；依赖盘和素材盘不进。"""
+    out: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(project_dir):
+        depth = len(Path(dirpath).relative_to(project_dir).parts)
+        if depth >= 1:
+            dirnames[:] = []
+        dirnames[:] = [d for d in dirnames if d not in _REPORT_SKIP_DIRS and not d.startswith(".")]
+        for fn in filenames:
+            if not fn.endswith(".md") or fn.startswith("."):
+                continue
+            if _REPORT_RE.match(fn) or _REPORTISH_RE.search(fn):
+                out.append(Path(dirpath) / fn)
+    return sorted(out)
+
+
 def _verdict_of(report_path: Path) -> dict[str, Any]:
     """
     读裁决：菜谱规定报告末行只能是「结论：通过」或「结论：打回（k 条不合格：…）」。
@@ -263,16 +285,22 @@ def build_ledger(
     # ── 质检报告：认领被检文件 + 末行裁决 ──────────────────────
     qa_by_target: dict[str, list[dict[str, Any]]] = {}
     qa_reports: dict[str, dict[str, Any]] = {}
-    for p in files:
+    report_pool: dict[str, Path] = {p.name: p for p in files if p.suffix == ".md"}
+    if dir_exists:
+        for p in _walk_reports(project_dir):
+            report_pool.setdefault(p.name, p)
+    for p in report_pool.values():
         m = _REPORT_RE.match(p.name)
-        if not m:
+        if not m and not _REPORTISH_RE.search(p.name):
             continue
         text = ""
         try:
             text = p.read_text(encoding="utf-8")
         except OSError:
             pass
-        agent_id = m.group(2)
+        # 中文名报告里没有人称，作者只能从交付事件反查：谁交的这个文件。
+        provenance = artifact_idx.get(("*", p.name), {})
+        agent_id = m.group(2) if m else str(provenance.get("agent_id") or "")
         role = roster.get(agent_id, "")
         is_qa = is_qa_report(agent_id, role)
         # ★ 只有质检岗的报告才带裁决。作者自己写「结论：通过」不算通过——
@@ -280,10 +308,10 @@ def build_ledger(
         verdict = _verdict_of(p) if is_qa else {"verdict": None, "detail": "", "line": ""}
         entry = {
             "report": p.name,
-            "order": int(m.group(1)),
+            "order": int(m.group(1)) if m else 0,
             "agent_id": agent_id,
             "role": role,
-            "ts": _iso(p.stat().st_mtime),
+            "ts": str(provenance.get("ts") or _iso(p.stat().st_mtime)),
             "link": "",
             "targets": [],
             **verdict,
@@ -304,7 +332,7 @@ def build_ledger(
         if r["category"] == "支撑脚本":
             continue
         own = qa_reports.get(r["file"])
-        qas = sorted(qa_by_target.get(r["file"], []), key=lambda x: x["order"])
+        qas = sorted(qa_by_target.get(r["file"], []), key=lambda x: (x["order"], x["ts"]))
         r["qa"] = qas
         if own and own.get("verdict"):
             r["qa_verdict"], r["qa_detail"] = own["verdict"], own["detail"]
