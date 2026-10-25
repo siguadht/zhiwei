@@ -57,6 +57,15 @@
    （台账里没有"客户签收"这一列，因为那条路径没有实现）。
 7. **整套前端重做**：白 + 黑、零渐变零阴影、一屏一处强调、尺寸按真实产品量；外加成员自主命名的三档规则。
 
+上面第 2 条那 7 份菜谱就在仓库里：`skills/system/`，随代码一起版本管理，`npm run dist:mac` /
+`dist:win` 会把它拷进安装包（`resources/skills`），主进程打包态用 `KNOWE_SYSTEM_SKILLS_DIRS`
+指过去。后端按 `KNOWE_SYSTEM_SKILLS_DIRS`（安装包）→ `backend/skills` → 仓库根 `skills` →
+`数据目录/skills/system` 的顺序扫描真实 `SKILL.md`，换目录或加新菜谱都不用改代码；
+三份质检规格里内嵌的是整段可运行脚本（`check_ppt.py` 等），落盘即可执行，
+不依赖任何外部 Office 二进制。想照着跑一遍交付与质检，仓库里带了一套现成的输入材料：
+[`demo/hotel/`](./demo/hotel/README.md)（虚构连锁门店 10 月的经营底表、总部督查通报、述职要求，
+加三段可直接粘贴的派工文案）。
+
 完整改动清单：[CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md) · [CHANGELOG.md](./CHANGELOG.md)
 
 ---

@@ -46,6 +46,13 @@ extraResources:
     to: backend
     filter:
       - "**/*"
+  # 内置菜谱（skills/system/ 的 7 份 SKILL.md）随包发布。后端靠主进程注入的
+  # KNOWE_SYSTEM_SKILLS_DIRS 找到 resources/skills；没有这道注入时，全新安装的机器
+  # 只能从数据目录里找菜谱，而数据目录是装完才建的——等于新机器上没有菜谱。
+  - from: skills
+    to: skills
+    filter:
+      - "**/*"
 
 win:
   icon: build/icon.ico

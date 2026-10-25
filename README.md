@@ -66,6 +66,17 @@ What this branch adds — the part that makes it an *office* agent rather than a
 7. **The whole frontend redone**: white + black, zero gradients and shadows, one emphasis per screen,
    sizes measured against real products; plus user-spoken member naming with a three-tier resolution rule.
 
+Those 7 recipes from item 2 are in the repo: `skills/system/`, version-controlled with the code, and
+copied into the installer by `npm run dist:mac` / `dist:win` (`resources/skills`, which the packaged
+main process hands over via `KNOWE_SYSTEM_SKILLS_DIRS`). The backend discovers real `SKILL.md` files
+in this order: `KNOWE_SYSTEM_SKILLS_DIRS` (installer) → `backend/skills` → repo-root `skills` →
+`<data_dir>/skills/system`. Moving them or adding a new recipe requires no code change, and the three
+QA specs embed the checker source itself (`check_ppt.py` and friends) — write it to disk and run it,
+no external Office binary involved. To try the whole delivery-and-QA loop yourself, the repo ships a
+ready-made set of inputs: [`demo/hotel/`](./demo/hotel/README.md) — a fictional chain outlet's October
+ledger, the group's quality-inspection notice, the review requirements, and three paste-ready work
+orders.
+
 Full change list: [CHANGELOG.md](./CHANGELOG.md) · [CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md)
 
 ---

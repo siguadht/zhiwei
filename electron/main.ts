@@ -704,6 +704,10 @@ function buildBackendEnv(): NodeJS.ProcessEnv {
     KNOWE_RUNTIME_TOKEN: runtimeToken,
     KNOWE_ATTACHMENT_KEY: getAttachmentSignKey(),
     KNOWE_AGENT: process.env.KNOWE_AGENT ?? 'deepseek',
+    // 内置菜谱随安装包发布（electron-builder.yml 的 extraResources 把它拷到
+    // resources/skills）。不注入这一条，全新安装的机器只能从「装完才建的数据目录」
+    // 里找菜谱，写作规格和质检尺子就都发现不了。
+    ...(app.isPackaged ? { KNOWE_SYSTEM_SKILLS_DIRS: join(process.resourcesPath, 'skills') } : {}),
   };
   // [阶段1.5] PYTHONPATH 双保险只对开发态有意义（`python -m backend` 的模块解析兜底）；
   //           打包版是 PyInstaller 自包含产物（依赖在 _internal/），不再注入。

@@ -82,6 +82,24 @@ Settings → About).
   existing member; requesting a name for an unknown member id is rejected rather than silently
   invented. 8 backend tests cover the tiers.
 
+### Demo & shipped assets (2026-10-25)
+
+- `skills/system/`: the 7 built-in recipes (3 writing specs + 3 QA specs + 1 acceptance discipline)
+  are now **version-controlled**. They used to live only inside the gitignored data directory, so a
+  fresh clone got an empty folder and the README's "7 built-in SKILL.md recipes" was untrue for
+  everyone else.
+- `demo/hotel/`: hotel-scenario demo pack — a fictional outlet (景岸·杭州钱江世纪城店), its October
+  2026 operations ledger, the group's quality-inspection notice, the regional manager's review
+  requirements, plus three paste-ready work orders. The ledger is script-generated with its own
+  conservation assertions, and one inconsistency is planted on purpose (GOP 40.0% against a 42%
+  budget, which cannot be signed off unless it is traced to specific cost lines) so that
+  "QA rejects → rework → re-check" actually happens during a demo instead of being narrated.
+  Brand, outlet and every number are invented.
+- Recipes now ship with the installer: `electron-builder.yml` copies `skills/` into
+  `resources/skills` and the main process injects `KNOWE_SYSTEM_SKILLS_DIRS` when packaged.
+  Without this, a clean install could only look for recipes in a data directory that does not exist
+  until after install — i.e. no writing specs, no QA rulers on a new machine.
+
 ### Documentation
 
 - 90 broken image references across 44 doc pages fixed (paths pointed at `docs/assets/` from
