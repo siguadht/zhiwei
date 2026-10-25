@@ -75,7 +75,12 @@ QA specs embed the checker source itself (`check_ppt.py` and friends) — write 
 no external Office binary involved. To try the whole delivery-and-QA loop yourself, the repo ships a
 ready-made set of inputs: [`demo/hotel/`](./demo/hotel/README.md) — a fictional chain outlet's October
 ledger, the group's quality-inspection notice, the review requirements, and three paste-ready work
-orders.
+orders. What one real run of those orders produced is checked in next to them
+([`demo/hotel/产出示例/`](./demo/hotel/产出示例/说明.md)): the three files, the 8 QA/self-check
+reports, and all 12 dispatch receipts — including the two that failed and the two QA rejections.
+Note that `dist:mac` / `dist:win` only assemble the already-frozen backend in `dist/KnoweBackend/`;
+after changing Python code, run the PyInstaller step in [TECH.md](./TECH.md) first or the installer
+ships yesterday's backend.
 
 Full change list: [CHANGELOG.md](./CHANGELOG.md) · [CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md)
 

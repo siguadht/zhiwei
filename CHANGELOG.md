@@ -91,7 +91,7 @@ Settings → About).
 - `demo/hotel/`: hotel-scenario demo pack — a fictional outlet (景岸·杭州钱江世纪城店), its October
   2026 operations ledger, the group's quality-inspection notice, the regional manager's review
   requirements, plus three paste-ready work orders. The ledger is script-generated with its own
-  conservation assertions, and one inconsistency is planted on purpose (GOP 40.0% against a 42%
+  conservation assertions, and one inconsistency is planted on purpose (GOP 40.04% against a 42%
   budget, which cannot be signed off unless it is traced to specific cost lines) so that
   "QA rejects → rework → re-check" actually happens during a demo instead of being narrated.
   Brand, outlet and every number are invented.
@@ -99,6 +99,31 @@ Settings → About).
   `resources/skills` and the main process injects `KNOWE_SYSTEM_SKILLS_DIRS` when packaged.
   Without this, a clean install could only look for recipes in a data directory that does not exist
   until after install — i.e. no writing specs, no QA rulers on a new machine.
+  Verified against the installed build (2026-10-25): `Contents/Resources/skills` holds all 7
+  `SKILL.md`, and the live `KnoweBackend` process carries
+  `KNOWE_SYSTEM_SKILLS_DIRS=<app>/Contents/Resources/skills` (read out of its process environment);
+  it binds 127.0.0.1:8080/8081. Not yet re-run: an actual task inside the packaged app, which needs
+  clicks — the release build deliberately has no remote-debugging port.
+- `demo/hotel/产出示例/`: one real run kept as evidence — the 3 final files (with byte counts and
+  SHA-256 that still match), the 8 in-workspace QA/author reports, and all 24 dispatch artifacts
+  (12 `instruction-*` + 12 `report-*`, including the two `status: FAILED` ones). Local absolute
+  paths were replaced with `<项目根>`; nothing else was edited.
+- The three QA recipes now pin where the report goes and what it is called
+  (`report-<step>-<agentId>-<title>.md`, at the project root, not in a subfolder), because the
+  delivery ledger claims verdicts by that name and showed "未质检" for reports that did exist.
+  The PPT and Excel writing recipes now also require document properties
+  (`core_properties.author`, `wb.properties.creator`) to be set before saving — python-pptx ships a
+  blank template whose author is a stranger, and that name used to end up in every deck we delivered.
+
+### Packaging notes (found the hard way, 2026-10-25)
+
+- `npm run dist:mac` assembles the installer from whatever sits in `dist/KnoweBackend/`; it does not
+  rebuild the Python backend. Ours was three days old, so backend fixes from this round were in the
+  repo but not in the app until PyInstaller was re-run (TECH.md, step 1). Check that directory's
+  timestamp after any backend change.
+- The chain also stops at `copy:chromium` when the backend interpreter has no `playwright`
+  installed, before `electron-builder` ever runs. This build skipped that step, so the installer
+  carries no bundled headless Chromium — same as the previously installed build.
 
 ### Documentation
 

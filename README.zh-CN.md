@@ -64,7 +64,11 @@
 三份质检规格里内嵌的是整段可运行脚本（`check_ppt.py` 等），落盘即可执行，
 不依赖任何外部 Office 二进制。想照着跑一遍交付与质检，仓库里带了一套现成的输入材料：
 [`demo/hotel/`](./demo/hotel/README.md)（虚构连锁门店 10 月的经营底表、总部督查通报、述职要求，
-加三段可直接粘贴的派工文案）。
+加三段可直接粘贴的派工文案）。照着跑一轮真实产出的东西也一并进了仓库：
+[`demo/hotel/产出示例/`](./demo/hotel/产出示例/说明.md)——三份成品、8 份质检/自检报告、12 步派工回单，
+里面包含两次「打回」和两份 `status: FAILED`，没有挑好看的只留一半。
+另外提醒一句：`dist:mac` / `dist:win` 只是把 `dist/KnoweBackend/` 里已经冻结好的后端装进安装包，
+改过 Python 代码要先跑 [TECH.md](./TECH.md) 里的 PyInstaller 那一步，否则装的是昨天的后端。
 
 完整改动清单：[CHANGELOG.zh-CN.md](./CHANGELOG.zh-CN.md) · [CHANGELOG.md](./CHANGELOG.md)
 
