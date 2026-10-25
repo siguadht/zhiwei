@@ -1992,6 +1992,9 @@ class SQLiteCompletionStore:
             "node_modules", ".git", "__pycache__", "logs", "backups", "backup",
             "dist", "build", "out", ".venv", "venv", "data", "runtime",
             "agents", "handoffs", "knowledge", "memory", ".idea", ".vscode",
+            # 与 engine._snapshot_workspace_baseline 同口径：pip --target ./_libs
+            # 装进来的依赖不是交付物，不该出文件卡。
+            "_libs",
         }
         DELIVERY_EXTS = {
             ".md", ".mdx", ".txt", ".pdf", ".docx", ".xlsx", ".pptx",

@@ -8735,6 +8735,10 @@ class ProjectEngine:
                 "node_modules", ".git", "__pycache__", "logs", "backups", "backup",
                 "dist", "build", "out", ".venv", "venv", "data", "runtime",
                 "agents", "handoffs", "knowledge", "memory", ".idea", ".vscode",
+                # Worker 装依赖用的目录（pip install --target ./_libs）。一次装
+                # python-pptx 就带进 480 个 .py/.json，全被当成"本次新增的交付物"
+                # 发到聊天里出文件卡。依赖不是交付物，快照阶段就要排除。
+                "_libs",
             }
             DELIVERY_EXTS = {
                 ".md", ".mdx", ".txt", ".pdf", ".docx", ".xlsx", ".pptx",
